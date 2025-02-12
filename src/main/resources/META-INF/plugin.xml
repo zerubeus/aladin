@@ -1,4 +1,5 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
+<?xml version="1.0" encoding="UTF-8"?>
 <idea-plugin>
     <id>com.github.zerubeus.aladin</id>
     <name>aladin</name>
@@ -11,6 +12,16 @@
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow factoryClass="com.github.zerubeus.aladin.toolWindow.MyToolWindowFactory" id="MyToolWindow"/>
     </extensions>
+
+    <actions>
+        <action id="NotificationPanel"
+                class="com.github.zerubeus.aladin.actions.NotificationPanelAction"
+                text="Notification Panel"
+                description="Opens the notification panel">
+            <add-to-group group-id="MainToolBar" anchor="last"/>
+            <add-to-group group-id="NavBarToolBar" anchor="last"/>
+        </action>
+    </actions>
 
     <applicationListeners>
         <listener class="com.github.zerubeus.aladin.listeners.MyApplicationActivationListener" topic="com.intellij.openapi.application.ApplicationActivationListener"/>
