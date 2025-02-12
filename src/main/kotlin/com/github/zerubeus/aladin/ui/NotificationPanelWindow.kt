@@ -25,7 +25,13 @@ class NotificationPanelWindow(private val project: Project) {
         
         val panel = createNotificationPanel()
         popup = createPopup(panel)
-        showPopupInTopRight(e.inputEvent.component)
+        
+        // Get the source component if available, otherwise use the IDE frame
+        val sourceComponent = e.inputEvent?.component 
+            ?: WindowManager.getInstance().getIdeFrame(project)?.component
+            ?: return
+            
+        showPopupInTopRight(sourceComponent)
     }
     
     private fun createNotificationPanel(): JBPanel<*> {
