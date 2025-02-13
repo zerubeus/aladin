@@ -14,7 +14,7 @@ import java.awt.Point
 import com.intellij.openapi.wm.WindowManager
 import java.awt.Component
 
-class NotificationPanelWindow(private val project: Project) {
+class AladinPanelWindow(private val project: Project) {
     private var popup: JBPopup? = null
     
     fun toggle(e: AnActionEvent) {
@@ -23,7 +23,7 @@ class NotificationPanelWindow(private val project: Project) {
             return
         }
         
-        val panel = createNotificationPanel()
+        val panel = createAladinPanel()
         popup = createPopup(panel)
         
         // Get the source component if available, otherwise use the IDE frame
@@ -34,7 +34,7 @@ class NotificationPanelWindow(private val project: Project) {
         showPopupInTopRight(sourceComponent)
     }
     
-    private fun createNotificationPanel(): JBPanel<*> {
+    private fun createAladinPanel(): JBPanel<*> {
         val panel = JBPanel<JBPanel<*>>()
         panel.layout = BoxLayout(panel, BoxLayout.Y_AXIS)
         panel.border = BorderFactory.createEmptyBorder(10, 10, 10, 10)
@@ -56,7 +56,7 @@ class NotificationPanelWindow(private val project: Project) {
             .setResizable(true)
             .setMovable(true)
             .setRequestFocus(true)
-            .setTitle("Notifications")
+            .setTitle("Aladin")
             .createPopup()
     }
     

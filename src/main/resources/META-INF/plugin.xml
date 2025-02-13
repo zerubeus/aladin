@@ -14,12 +14,15 @@
     </extensions>
 
     <actions>
-        <action id="NotificationPanel"
-                class="com.github.zerubeus.aladin.actions.NotificationPanelAction"
-                text="Notification Panel"
-                description="Opens the notification panel">
+        <action id="AladinPanel"
+                class="com.github.zerubeus.aladin.actions.AladinPanelAction"
+                text="Aladin"
+                description="Opens Aladin panel"
+                icon="/icons/aladin.svg">
             <add-to-group group-id="MainToolBar" anchor="last"/>
             <add-to-group group-id="NavBarToolBar" anchor="last"/>
+            <override-text place="MainToolbar" text=""/>
+            <override-text place="NavBarToolbar" text=""/>
         </action>
     </actions>
 
