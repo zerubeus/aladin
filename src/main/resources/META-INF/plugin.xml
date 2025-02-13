@@ -10,21 +10,16 @@
     <resource-bundle>messages.MyBundle</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow factoryClass="com.github.zerubeus.aladin.toolWindow.MyToolWindowFactory" id="MyToolWindow"/>
+        <toolWindow id="Aladin" 
+                   anchor="right"
+                   icon="icons/aladin.svg"
+                   factoryClass="com.github.zerubeus.aladin.ui.AladinToolWindowFactory"
+                   secondary="true">
+            <additionalIcons>
+                <icon dark="true" path="icons/aladin_dark.svg"/>
+            </additionalIcons>
+        </toolWindow>
     </extensions>
-
-    <actions>
-        <action id="AladinPanel"
-                class="com.github.zerubeus.aladin.actions.AladinPanelAction"
-                text="Aladin"
-                description="Opens Aladin panel"
-                icon="/icons/aladin.svg">
-            <add-to-group group-id="MainToolBar" anchor="last"/>
-            <add-to-group group-id="NavBarToolBar" anchor="last"/>
-            <override-text place="MainToolbar" text=""/>
-            <override-text place="NavBarToolbar" text=""/>
-        </action>
-    </actions>
 
     <applicationListeners>
         <listener class="com.github.zerubeus.aladin.listeners.MyApplicationActivationListener" topic="com.intellij.openapi.application.ApplicationActivationListener"/>
