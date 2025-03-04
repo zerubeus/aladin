@@ -19,20 +19,11 @@ import javax.swing.ScrollPaneConstants
 import javax.swing.border.EmptyBorder
 import java.awt.Font
 import java.awt.Color
-import javax.swing.text.DefaultCaret
-import javax.swing.text.StyleConstants
-import javax.swing.text.StyleContext
-import javax.swing.text.StyledDocument
 import javax.swing.JLabel
-import javax.swing.ImageIcon
 import javax.swing.SwingUtilities
 import com.intellij.openapi.util.IconLoader
 import com.intellij.ui.JBColor
-import com.intellij.util.ui.UIUtil
 import java.awt.FlowLayout
-import java.awt.GridBagConstraints
-import java.awt.GridBagLayout
-import java.awt.Insets
 import javax.swing.border.CompoundBorder
 
 /**
@@ -86,9 +77,9 @@ class ChatPanel : JBPanel<ChatPanel>(BorderLayout()) {
         
         // Input field
         inputField = JBTextField("Ask Aladin anything...").apply {
-            font = JBUI.Fonts.create(Font.SANS_SERIF, 13f)
+            font = JBUI.Fonts.create(Font.SANS_SERIF, 13)
             border = BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(JBUI.CurrentTheme.TextField.borderColor(), 1, true),
+                BorderFactory.createLineBorder(JBColor.border(), 1, true),
                 BorderFactory.createEmptyBorder(8, 10, 8, 10)
             )
             
@@ -180,7 +171,7 @@ class ChatPanel : JBPanel<ChatPanel>(BorderLayout()) {
         
         // Name label
         val nameLabel = JLabel(if (isUser) "You" else "Aladin").apply {
-            font = JBUI.Fonts.create(Font.SANS_SERIF, 12f, Font.BOLD)
+            font = JBUI.Fonts.create(Font.SANS_SERIF, 12)
             foreground = JBColor.foreground()
         }
         
@@ -202,7 +193,7 @@ class ChatPanel : JBPanel<ChatPanel>(BorderLayout()) {
             isEditable = false
             lineWrap = true
             wrapStyleWord = true
-            font = JBUI.Fonts.create(Font.SANS_SERIF, 13f)
+            font = JBUI.Fonts.create(Font.SANS_SERIF, 13)
             background = if (isUser) userBgColor else aiBgColor
             foreground = if (isUser) userTextColor else aiTextColor
             border = BorderFactory.createEmptyBorder()

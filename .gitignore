@@ -3,4 +3,5 @@
 .intellijPlatform
 .qodana
 .cursor
+.kotlin
 build
