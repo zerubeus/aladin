@@ -2,12 +2,10 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
 <idea-plugin>
     <id>com.github.zerubeus.aladin</id>
-    <name>Aladin - AI Assistant</name>
+    <n>Aladin - AI Assistant</n>
     <vendor>zerubeus</vendor>
 
     <depends>com.intellij.modules.platform</depends>
-
-    <resource-bundle>messages.MyBundle</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow id="Aladin" 
@@ -19,9 +17,27 @@
                 <icon dark="true" path="icons/aladin_dark.svg"/>
             </additionalIcons>
         </toolWindow>
+        
+        <!-- Register the settings components -->
+        <applicationService serviceImplementation="com.github.zerubeus.aladin.settings.ApiSettingsState"/>
+        <applicationService serviceImplementation="com.github.zerubeus.aladin.services.TokenUsageService"/>
+        <applicationConfigurable 
+            parentId="tools" 
+            instance="com.github.zerubeus.aladin.settings.ApiSettingsConfigurable"
+            id="com.github.zerubeus.aladin.settings.ApiSettingsConfigurable" 
+            displayName="Aladin AI Settings"/>
     </extensions>
-
-    <applicationListeners>
-        <listener class="com.github.zerubeus.aladin.listeners.MyApplicationActivationListener" topic="com.intellij.openapi.application.ApplicationActivationListener"/>
-    </applicationListeners>
+    
+    <projectListeners>
+    </projectListeners>
+    
+    <actions>
+        <!-- Add action to quickly open settings -->
+        <action id="com.github.zerubeus.aladin.actions.OpenSettingsAction" 
+                class="com.github.zerubeus.aladin.actions.OpenSettingsAction"
+                text="Configure Aladin AI Settings"
+                description="Open the Aladin AI plugin settings panel">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+        </action>
+    </actions>
 </idea-plugin>
