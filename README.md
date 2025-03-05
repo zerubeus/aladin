@@ -1,13 +1,15 @@
-# Aladin - AI Assistant for IntelliJ
+<h1 align="center">Aladin - AI Assistant for IntelliJ</h1>
 
 <p align="center">
   <img src="src/main/resources/icons/aladin.svg" alt="Aladin Logo" width="150">
 </p>
 
 
-![Build](https://github.com/zerubeus/aladin/workflows/Build/badge.svg)
-[![Version](https://img.shields.io/jetbrains/plugin/v/MARKETPLACE_ID.svg)](https://plugins.jetbrains.com/plugin/MARKETPLACE_ID)
-[![Downloads](https://img.shields.io/jetbrains/plugin/d/MARKETPLACE_ID.svg)](https://plugins.jetbrains.com/plugin/MARKETPLACE_ID)
+<p style="text-align: center;">
+  <img src="https://github.com/zerubeus/aladin/workflows/Build/badge.svg" alt="Build">
+  <a href="https://plugins.jetbrains.com/plugin/MARKETPLACE_ID"><img src="https://img.shields.io/jetbrains/plugin/v/MARKETPLACE_ID.svg" alt="Version"></a>
+  <a href="https://plugins.jetbrains.com/plugin/MARKETPLACE_ID"><img src="https://img.shields.io/jetbrains/plugin/d/MARKETPLACE_ID.svg" alt="Downloads"></a>
+</p>
 
 ## Template ToDo list
 
