@@ -133,7 +133,7 @@ class TokenUsageService {
         
         // Schedule the task
         val executor = AppExecutorUtil.getAppScheduledExecutorService()
-        resetTask = executor.scheduleAtFixedRate(
+        resetTask = executor.scheduleWithFixedDelay(
             { resetUsage() },
             initialDelay,
             TimeUnit.DAYS.toMillis(1),

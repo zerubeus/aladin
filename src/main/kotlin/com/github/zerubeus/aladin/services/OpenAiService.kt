@@ -39,18 +39,23 @@ class OpenAiService {
         val apiKey = settings.getDecryptedApiKey()
         
         if (apiKey.isBlank()) {
+            logger.warn("API key is blank, cannot send message to OpenAI")
             return@withContext "Please configure your API key in Settings → Aladin AI Settings."
         }
+        
+        logger.info("Preparing to send message to OpenAI, estimated token count: ${estimateTokens(userMessage)}")
         
         // Estimate tokens to ensure we don't exceed limits
         val estimatedTokens = estimateTokens(userMessage)
         if (!tokenUsageService.canMakeRequest(estimatedTokens)) {
+            logger.warn("Daily token limit exceeded")
             return@withContext "Daily token limit exceeded. Please try again tomorrow or adjust your limits in settings."
         }
         
         try {
             // Prepare the request
             val url = URL("https://api.openai.com/v1/chat/completions")
+            logger.info("Connecting to OpenAI API: ${url}")
             val connection = url.openConnection() as HttpURLConnection
             connection.requestMethod = "POST"
             connection.setRequestProperty("Content-Type", "application/json")
@@ -79,15 +84,21 @@ class OpenAiService {
             requestBody.put("temperature", 0.7)
             requestBody.put("max_tokens", 1000)
             
+            val requestBodyString = requestBody.toString()
+            logger.info("Sending request to OpenAI API with body: $requestBodyString")
+            
             // Send the request
             connection.outputStream.use { os ->
-                os.write(requestBody.toString().toByteArray())
+                os.write(requestBodyString.toByteArray())
             }
             
             // Process the response
             val responseCode = connection.responseCode
+            logger.info("Received response from OpenAI API with code: $responseCode")
+            
             if (responseCode == 200) {
                 val response = connection.inputStream.bufferedReader().use { it.readText() }
+                logger.info("Received successful response from OpenAI: $response")
                 val jsonResponse = JSONObject(response)
                 
                 // Extract the response text
@@ -101,8 +112,10 @@ class OpenAiService {
                     val totalTokens = usage.getInt("total_tokens")
                     tokenUsageService.recordTokenUsage(totalTokens)
                     
+                    logger.info("Successfully processed OpenAI response with $totalTokens tokens")
                     return@withContext content
                 }
+                logger.warn("Received empty response from OpenAI")
                 return@withContext "Received empty response from OpenAI."
             } else {
                 // Handle error response
@@ -113,14 +126,24 @@ class OpenAiService {
                 // Parse error message if possible
                 return@withContext try {
                     val jsonError = JSONObject(errorResponse)
-                    "Error from OpenAI: ${jsonError.optJSONObject("error")?.optString("message") ?: "Unknown error"}"
+                    val errorMsg = jsonError.optJSONObject("error")?.optString("message") ?: "Unknown error"
+                    
+                    // Special handling for rate limit errors
+                    if (errorMsg.contains("rate limit", ignoreCase = true)) {
+                        logger.warn("OpenAI rate limit reached: $errorMsg")
+                        "Rate limit exceeded. Please try again later. ($errorMsg)"
+                    } else {
+                        logger.error("OpenAI error: $errorMsg")
+                        "Error from OpenAI: $errorMsg"
+                    }
                 } catch (e: Exception) {
-                    "Error from OpenAI: HTTP $responseCode"
+                    logger.error("Failed to parse OpenAI error response", e)
+                    "Error communicating with OpenAI: ${e.message}"
                 }
             }
         } catch (e: Exception) {
             logger.error("Error communicating with OpenAI", e)
-            return@withContext "Error communicating with OpenAI: ${e.message}"
+            return@withContext "Error communicating with OpenAI: ${e.message ?: "Unknown error"} (${e.javaClass.simpleName})"
         }
     }
     

@@ -8,11 +8,9 @@
 # Workflow is triggered manually.
 
 name: Run UI Tests
-on:
-  workflow_dispatch
+on: workflow_dispatch
 
 jobs:
-
   testUI:
     runs-on: ${{ matrix.os }}
     strategy:
@@ -30,7 +28,6 @@ jobs:
             runIde: ./gradlew runIdeForUiTests &
 
     steps:
-
       # Check out the current repository
       - name: Fetch Sources
         uses: actions/checkout@v4
@@ -45,6 +42,12 @@ jobs:
       # Setup Gradle
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
+
+      # Create .env file for tests
+      - name: Create .env file
+        run: |
+          echo "OPEN_AI_API_KEY=${{ secrets.OPEN_AI_API_KEY }}" > .env
+        shell: bash
 
       # Run IDEA prepared for UI testing
       - name: Run IDE
@@ -61,3 +64,5 @@ jobs:
       # Run tests
       - name: Tests
         run: ./gradlew test
+        env:
+          OPEN_AI_API_KEY: ${{ secrets.OPEN_AI_API_KEY }}

@@ -77,12 +77,44 @@ Aladin is an advanced AI assistant for IntelliJ-based IDEs that enhances your co
 Aladin is currently under active development. The following features are being implemented:
 
 - [ ] Core agent infrastructure
-- [ ] Chat interface
+- [x] Chat interface
 - [ ] Code completion integration
 - [ ] Codebase search capabilities
 - [ ] Terminal command execution
 - [ ] Web search integration
-- [ ] Settings and configuration panel
+- [x] Settings and configuration panel
+- [x] OpenAI API integration
+
+## Testing
+
+Aladin includes a comprehensive test suite to ensure functionality and reliability. To run the tests:
+
+```bash
+./gradlew test
+```
+
+### API Testing
+
+Some tests interact with the OpenAI API to verify integration. To run these tests:
+
+1. Copy the `.env.example` file to `.env` in the project root:
+
+   ```bash
+   cp .env.example .env
+   ```
+
+2. Edit the `.env` file and add your OpenAI API key:
+
+   ```
+   OPEN_AI_API_KEY=your_actual_api_key_here
+   ```
+
+3. Run the tests:
+   ```bash
+   ./gradlew test
+   ```
+
+Note: Tests that interact with the OpenAI API are designed to handle rate limiting gracefully. If you encounter rate limit errors, wait a few minutes and try again.
 
 ## Contributing
 
