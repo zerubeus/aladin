@@ -34,7 +34,7 @@ dependencies {
     testImplementation(libs.junit)
     
     // JSON library for OpenAI API
-    implementation("org.json:json:20230618")
+    implementation("org.json:json:20250107")
 
     // IntelliJ Platform Gradle Plugin Dependencies Extension - read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-dependencies-extension.html
     intellijPlatform {
