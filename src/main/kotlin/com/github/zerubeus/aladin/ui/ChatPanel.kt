@@ -33,8 +33,14 @@ class ChatPanel : JBPanel<ChatPanel>(BorderLayout()) {
     private val chatHistoryPane: JTextPane
     private val inputField: JBTextField
     private val sendButton: JButton
-    private val messagesPanel: JPanel
-    
+
+    // Messages panel with BoxLayout for vertical stacking
+    private val messagesPanel: JPanel = JPanel().apply {
+        layout = BoxLayout(this, BoxLayout.Y_AXIS)
+        background = JBColor.background()
+        border = EmptyBorder(10, 10, 10, 10)
+    }
+
     // Message styling
     private val userBgColor = JBColor(Color(240, 240, 240), Color(60, 63, 65))
     private val aiBgColor = JBColor(Color(230, 242, 255), Color(45, 48, 50))
@@ -45,13 +51,7 @@ class ChatPanel : JBPanel<ChatPanel>(BorderLayout()) {
     private val sendIcon = IconLoader.getIcon("/icons/send.svg", ChatPanel::class.java)
     
     init {
-        // Messages panel with BoxLayout for vertical stacking
-        messagesPanel = JPanel().apply {
-            layout = BoxLayout(this, BoxLayout.Y_AXIS)
-            background = JBColor.background()
-            border = EmptyBorder(10, 10, 10, 10)
-        }
-        
+
         // Scroll pane for messages
         val scrollPane = JBScrollPane(messagesPanel).apply {
             verticalScrollBarPolicy = ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED

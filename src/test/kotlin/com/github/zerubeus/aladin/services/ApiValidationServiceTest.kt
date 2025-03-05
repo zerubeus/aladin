@@ -5,7 +5,6 @@ import com.github.zerubeus.aladin.settings.ApiSettingsState
 import com.intellij.openapi.components.service
 import com.intellij.testFramework.LightPlatformTestCase
 import kotlinx.coroutines.runBlocking
-import org.junit.Test
 
 class ApiValidationServiceTest : LightPlatformTestCase() {
 
@@ -16,7 +15,6 @@ class ApiValidationServiceTest : LightPlatformTestCase() {
         validationService = ApiValidationService(project)
     }
     
-    @Test
     fun testEmptyApiKeyValidation() = runBlocking {
         val settings = service<ApiSettingsState>()
         // Ensure API key is empty
@@ -28,7 +26,6 @@ class ApiValidationServiceTest : LightPlatformTestCase() {
             result.message.contains("API key is empty"))
     }
     
-    @Test
     fun testFormatErrorMessage() {
         // Test with different types of errors
         val unknownHostError = java.net.UnknownHostException("No such host")
