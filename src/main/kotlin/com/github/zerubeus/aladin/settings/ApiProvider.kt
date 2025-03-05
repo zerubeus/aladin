@@ -14,7 +14,7 @@ enum class ApiProvider(val displayName: String, val baseUrl: String) {
     
     companion object {
         fun fromDisplayName(displayName: String): ApiProvider {
-            return values().find { it.displayName == displayName } ?: OPENAI
+            return entries.find { it.displayName == displayName } ?: OPENAI
         }
     }
 } 

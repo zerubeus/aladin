@@ -5,6 +5,7 @@ import com.github.zerubeus.aladin.settings.ApiProvider
 import com.github.zerubeus.aladin.settings.ApiSettingsState
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.service
+import com.intellij.openapi.ui.ComboBox
 import com.intellij.ui.components.JBPanel
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.components.JBTextArea
@@ -33,7 +34,6 @@ import javax.swing.border.CompoundBorder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import javax.swing.JComboBox
 
 /**
  * A panel that displays a chat interface for the Aladin AI assistant.
@@ -42,7 +42,7 @@ class ChatPanel : JBPanel<ChatPanel>(BorderLayout()) {
     private val chatHistoryPane: JTextPane
     private val inputField: JBTextField
     private val sendButton: JButton
-    private val providerSelector: JComboBox<String>
+    private val aiProviderSelector: ComboBox<String>
 
     // Messages panel with BoxLayout for vertical stacking
     private val messagesPanel: JPanel = JPanel().apply {
@@ -75,24 +75,25 @@ class ChatPanel : JBPanel<ChatPanel>(BorderLayout()) {
             background = JBColor.background()
         }
 
-        // Provider selector panel
-        val providerPanel = JPanel(FlowLayout(FlowLayout.LEFT)).apply {
+        // AI Provider selector panel (OpenAI, OLLAMA, etc.)
+        val aiProviderPanel = JPanel(FlowLayout(FlowLayout.LEFT)).apply {
             background = JBColor.background()
         }
         
-        // Provider selector
-        providerSelector = JComboBox<String>().apply {
+        // AI Provider selector
+        aiProviderSelector = ComboBox<String>().apply {
             // Add available providers
             addItem(ApiProvider.OPENAI.displayName)
             addItem(ApiProvider.OLLAMA.displayName)
-            
+
             // Set current provider
             val settings = service<ApiSettingsState>()
             selectedItem = settings.apiProvider.displayName
-            
+
             // Add change listener
             addActionListener {
-                val selectedProvider = ApiProvider.fromDisplayName(selectedItem.toString())
+                val selectedAIProviderName = selectedItem?.toString() ?: ApiProvider.OLLAMA.displayName
+                val selectedProvider = ApiProvider.fromDisplayName(selectedAIProviderName)
                 settings.apiProvider = selectedProvider
                 // Notify user of provider change
                 addMessage("System", "Switched to ${selectedProvider.displayName} provider")
@@ -100,11 +101,11 @@ class ChatPanel : JBPanel<ChatPanel>(BorderLayout()) {
         }
         
         // Add provider label and selector to provider panel
-        providerPanel.add(JLabel("Provider:"))
-        providerPanel.add(providerSelector)
+        aiProviderPanel.add(JLabel("Provider:"))
+        aiProviderPanel.add(aiProviderSelector)
         
         // Add provider panel to the top
-        add(providerPanel, BorderLayout.NORTH)
+        add(aiProviderPanel, BorderLayout.NORTH)
         
         // Input panel
         val inputPanel = JPanel(BorderLayout()).apply {
