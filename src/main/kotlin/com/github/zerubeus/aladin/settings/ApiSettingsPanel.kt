@@ -80,6 +80,7 @@ class ApiSettingsPanel(private val settings: ApiSettingsState) {
                     ApiProvider.OPENAI -> "https://platform.openai.com/account/api-keys"
                     ApiProvider.ANTHROPIC -> "https://console.anthropic.com/account/keys"
                     ApiProvider.AZURE_OPENAI -> "https://learn.microsoft.com/en-us/azure/ai-services/openai/how-to/create-resource"
+                    ApiProvider.OLLAMA -> "https://ollama.com/download"
                     ApiProvider.CUSTOM -> ""
                 }
                 if (url.isNotEmpty()) {

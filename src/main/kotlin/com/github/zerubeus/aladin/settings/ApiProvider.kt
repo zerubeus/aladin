@@ -7,6 +7,7 @@ enum class ApiProvider(val displayName: String, val baseUrl: String) {
     OPENAI("OpenAI", "https://api.openai.com/v1"),
     ANTHROPIC("Anthropic", "https://api.anthropic.com/v1"),
     AZURE_OPENAI("Azure OpenAI", "https://YOUR_RESOURCE_NAME.openai.azure.com"),
+    OLLAMA("Ollama", "http://localhost:11434"),
     CUSTOM("Custom Endpoint", "");
     
     override fun toString(): String = displayName

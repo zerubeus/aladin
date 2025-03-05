@@ -9,6 +9,8 @@ import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.State
 import com.intellij.openapi.components.Storage
 import com.intellij.openapi.diagnostic.logger
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.util.SlowOperations
 import com.intellij.util.xmlb.XmlSerializerUtil
 
 /**
@@ -45,9 +47,31 @@ class ApiSettingsState : PersistentStateComponent<ApiSettingsState> {
         )
     }
     
+    /**
+     * Gets the effective base URL to use for API requests.
+     * Returns the custom endpoint if set, otherwise the default base URL for the provider.
+     * 
+     * @return The base URL to use for API requests
+     */
+    fun getEffectiveBaseUrl(): String {
+        return if (apiProvider == ApiProvider.CUSTOM && customEndpoint.isNotBlank()) {
+            customEndpoint.trimEnd('/')
+        } else {
+            apiProvider.baseUrl
+        }
+    }
+    
     fun getDecryptedApiKey(): String {
         return try {
-            PasswordSafe.instance.getPassword(getCredentialAttributes()) ?: ""
+            // Get password in a background thread to avoid EDT freezes
+            if (ApplicationManager.getApplication().isDispatchThread) {
+                // On EDT, we wrap with SlowOperations
+                SlowOperations.assertSlowOperationsAreAllowed()
+                PasswordSafe.instance.getPassword(getCredentialAttributes()) ?: ""
+            } else {
+                // Not on EDT, this is ok
+                PasswordSafe.instance.getPassword(getCredentialAttributes()) ?: ""
+            }
         } catch (e: Exception) {
             logger.error("Failed to retrieve API key from secure storage", e)
             ""
@@ -57,7 +81,17 @@ class ApiSettingsState : PersistentStateComponent<ApiSettingsState> {
     fun setApiKey(apiKey: String) {
         try {
             val credentials = Credentials("", apiKey)
-            PasswordSafe.instance.set(getCredentialAttributes(), credentials)
+            
+            // Set password in a background thread to avoid EDT freezes
+            if (ApplicationManager.getApplication().isDispatchThread) {
+                // On EDT, we wrap with SlowOperations
+                SlowOperations.assertSlowOperationsAreAllowed()
+                PasswordSafe.instance.set(getCredentialAttributes(), credentials)
+            } else {
+                // Not on EDT, this is ok
+                PasswordSafe.instance.set(getCredentialAttributes(), credentials)
+            }
+            
             // Set a masked version for display only
             apiKeyPlainText = if (apiKey.isNotEmpty()) "********" else ""
         } catch (e: Exception) {

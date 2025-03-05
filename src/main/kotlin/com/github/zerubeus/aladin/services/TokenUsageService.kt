@@ -24,11 +24,6 @@ class TokenUsageService {
     private var totalRequests: Long = 0
     private var failedRequests: Long = 0
     
-    init {
-        // Schedule daily usage reset
-        scheduleUsageReset()
-    }
-    
     /**
      * Records token usage from an API request
      * @param tokenCount the number of tokens used in the request
@@ -36,6 +31,9 @@ class TokenUsageService {
      */
     fun recordTokenUsage(tokenCount: Int): Boolean {
         val settings = service<ApiSettingsState>()
+        
+        // Ensure scheduler is running
+        ensureSchedulerInitialized()
         
         // Check if we need to reset (safeguard in case scheduled task fails)
         checkAndResetIfNewDay()
@@ -61,6 +59,10 @@ class TokenUsageService {
      */
     fun canMakeRequest(estimatedTokens: Int): Boolean {
         val settings = service<ApiSettingsState>()
+        
+        // Ensure scheduler is running
+        ensureSchedulerInitialized()
+        
         checkAndResetIfNewDay()
         
         return settings.tokenUsage + estimatedTokens <= settings.dailyTokenLimit
@@ -72,6 +74,9 @@ class TokenUsageService {
      */
     fun getUsageStatistics(): Map<String, Any> {
         val settings = service<ApiSettingsState>()
+        
+        // Ensure scheduler is running
+        ensureSchedulerInitialized()
         
         return mapOf(
             "tokenUsage" to settings.tokenUsage,
@@ -103,7 +108,20 @@ class TokenUsageService {
     }
     
     /**
-     * Resets the usage counter if it's a new day
+     * Ensures the scheduler is initialized. This is called lazily on first use.
+     */
+    private fun ensureSchedulerInitialized() {
+        if (resetTask == null) {
+            scheduleUsageReset()
+        }
+    }
+    
+    /**
+     * Checks if the current usage is approaching the configured limit
+     */
+    
+    /**
+     * Checks and resets the usage counter if it's a new day
      */
     private fun checkAndResetIfNewDay() {
         val today = LocalDate.now(ZoneId.systemDefault())

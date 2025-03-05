@@ -40,6 +40,7 @@ class ApiValidationService(private val project: Project) {
             ApiProvider.OPENAI -> validateOpenAiKey(apiKey)
             ApiProvider.ANTHROPIC -> validateAnthropicKey(apiKey)
             ApiProvider.AZURE_OPENAI -> validateAzureOpenAiKey(apiKey, settings.customEndpoint)
+            ApiProvider.OLLAMA -> validateOllamaConnection(settings.getEffectiveBaseUrl())
             ApiProvider.CUSTOM -> validateCustomEndpoint(apiKey, settings.customEndpoint)
         }
     }
@@ -148,6 +149,50 @@ class ApiValidationService(private val project: Project) {
     }
     
     /**
+     * Validates connection to a local Ollama server.
+     * 
+     * @param baseUrl The Ollama server URL (usually http://localhost:11434)
+     * @return A ValidationResult with the result and a message
+     */
+    private fun validateOllamaConnection(baseUrl: String): ValidationResult {
+        try {
+            // Check if the base URL is valid
+            if (baseUrl.isBlank()) {
+                return ValidationResult(false, "Ollama server URL is empty.")
+            }
+            
+            // Test connection to the Ollama API
+            val url = URL("$baseUrl/api/tags")
+            val connection = url.openConnection() as HttpURLConnection
+            connection.requestMethod = "GET"
+            connection.connectTimeout = 5000
+            connection.readTimeout = 5000
+            
+            val responseCode = connection.responseCode
+            logger.info("Ollama API connection test returned code: $responseCode")
+            
+            if (responseCode == 200) {
+                return ValidationResult(true, "Successfully connected to Ollama server.")
+            }
+            
+            // Handle error response
+            val errorStream = connection.errorStream
+            val errorResponse = errorStream?.bufferedReader()?.use { it.readText() } ?: ""
+            
+            return ValidationResult(
+                false,
+                "Failed to connect to Ollama server. Response code: $responseCode. ${errorResponse.take(100)}"
+            )
+        } catch (e: Exception) {
+            logger.error("Error connecting to Ollama server", e)
+            return ValidationResult(
+                false,
+                "Error connecting to Ollama server: ${e.message ?: "Unknown error"}"
+            )
+        }
+    }
+    
+    /**
      * Formats error messages for display to the user
      */
     fun formatErrorMessage(error: Exception, provider: ApiProvider): String {
@@ -162,6 +207,7 @@ class ApiValidationService(private val project: Project) {
             ApiProvider.OPENAI -> "Check your OpenAI API key and quota."
             ApiProvider.ANTHROPIC -> "Check your Anthropic API key and quota."
             ApiProvider.AZURE_OPENAI -> "Check your Azure OpenAI API key, endpoint URL, and quota."
+            ApiProvider.OLLAMA -> "Make sure Ollama is running on your machine."
             ApiProvider.CUSTOM -> "Check your custom endpoint configuration."
         }
         

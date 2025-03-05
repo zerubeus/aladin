@@ -17,12 +17,12 @@ import java.net.URL
  * Handles message sending and response processing.
  */
 @Service(Service.Level.APP)
-class OpenAiService {
+class OpenAiService : LlmProviderService {
     private val logger = logger<OpenAiService>()
     private val tokenUsageService = service<TokenUsageService>()
     
     companion object {
-        private const val MODEL = "gpt-3.5-turbo"
+        private const val DEFAULT_MODEL = "gpt-3.5-turbo"
         private const val SYSTEM_PROMPT = "You are Aladin, an AI assistant for coding in JetBrains IDEs. " +
                 "You help answer questions about code, suggest improvements, and assist with programming tasks."
     }
@@ -34,7 +34,7 @@ class OpenAiService {
      * @return The AI's response
      * @throws Exception if there's an error communicating with the API
      */
-    suspend fun sendMessage(userMessage: String): String = withContext(Dispatchers.IO) {
+    override suspend fun sendMessage(userMessage: String): String = withContext(Dispatchers.IO) {
         val settings = service<ApiSettingsState>()
         val apiKey = settings.getDecryptedApiKey()
         
@@ -79,7 +79,7 @@ class OpenAiService {
             
             // Create the request body
             val requestBody = JSONObject()
-            requestBody.put("model", MODEL)
+            requestBody.put("model", DEFAULT_MODEL)
             requestBody.put("messages", messagesArray)
             requestBody.put("temperature", 0.7)
             requestBody.put("max_tokens", 1000)
@@ -144,6 +144,58 @@ class OpenAiService {
         } catch (e: Exception) {
             logger.error("Error communicating with OpenAI", e)
             return@withContext "Error communicating with OpenAI: ${e.message ?: "Unknown error"} (${e.javaClass.simpleName})"
+        }
+    }
+    
+    /**
+     * Gets the currently selected model for OpenAI.
+     * 
+     * @return The model name
+     */
+    override fun getCurrentModel(): String {
+        return DEFAULT_MODEL
+    }
+    
+    /**
+     * Gets available models from OpenAI.
+     * For now, returns a hardcoded list of common models.
+     * 
+     * @return List of available model names
+     */
+    override suspend fun getAvailableModels(): List<String> = withContext(Dispatchers.IO) {
+        return@withContext listOf(
+            "gpt-3.5-turbo",
+            "gpt-4",
+            "gpt-4-turbo"
+        )
+    }
+    
+    /**
+     * Validates the OpenAI API connection and credentials.
+     * 
+     * @return True if connection is valid, false otherwise
+     */
+    override suspend fun validateConnection(): Boolean = withContext(Dispatchers.IO) {
+        try {
+            val settings = service<ApiSettingsState>()
+            val apiKey = settings.getDecryptedApiKey()
+            
+            if (apiKey.isBlank()) {
+                return@withContext false
+            }
+            
+            val url = URL("${settings.getEffectiveBaseUrl()}/models")
+            val connection = url.openConnection() as HttpURLConnection
+            connection.requestMethod = "GET"
+            connection.setRequestProperty("Authorization", "Bearer $apiKey")
+            connection.connectTimeout = 5000
+            connection.readTimeout = 5000
+            
+            val responseCode = connection.responseCode
+            return@withContext responseCode == 200
+        } catch (e: Exception) {
+            logger.warn("Failed to validate OpenAI connection: ${e.message}")
+            return@withContext false
         }
     }
     

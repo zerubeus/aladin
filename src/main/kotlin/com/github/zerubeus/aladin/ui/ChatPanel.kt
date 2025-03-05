@@ -1,5 +1,8 @@
 package com.github.zerubeus.aladin.ui
 
+import com.github.zerubeus.aladin.services.LlmProviderFactory
+import com.github.zerubeus.aladin.settings.ApiProvider
+import com.github.zerubeus.aladin.settings.ApiSettingsState
 import com.github.zerubeus.aladin.services.OpenAiService
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.service
@@ -32,6 +35,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import javax.swing.JComboBox
 
 /**
  * A panel that displays a chat interface for the Aladin AI assistant.
@@ -40,6 +44,7 @@ class ChatPanel : JBPanel<ChatPanel>(BorderLayout()) {
     private val chatHistoryPane: JTextPane
     private val inputField: JBTextField
     private val sendButton: JButton
+    private val providerSelector: JComboBox<String>
 
     // Messages panel with BoxLayout for vertical stacking
     private val messagesPanel: JPanel = JPanel().apply {
@@ -58,7 +63,6 @@ class ChatPanel : JBPanel<ChatPanel>(BorderLayout()) {
     private val sendIcon = IconLoader.getIcon("/icons/send.svg", ChatPanel::class.java)
     
     init {
-
         // Scroll pane for messages
         val scrollPane = JBScrollPane(messagesPanel).apply {
             verticalScrollBarPolicy = ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED
@@ -72,6 +76,37 @@ class ChatPanel : JBPanel<ChatPanel>(BorderLayout()) {
             isEditable = false
             background = JBColor.background()
         }
+
+        // Provider selector panel
+        val providerPanel = JPanel(FlowLayout(FlowLayout.LEFT)).apply {
+            background = JBColor.background()
+        }
+        
+        // Provider selector
+        providerSelector = JComboBox<String>().apply {
+            // Add available providers
+            addItem(ApiProvider.OPENAI.displayName)
+            addItem(ApiProvider.OLLAMA.displayName)
+            
+            // Set current provider
+            val settings = service<ApiSettingsState>()
+            selectedItem = settings.apiProvider.displayName
+            
+            // Add change listener
+            addActionListener {
+                val selectedProvider = ApiProvider.fromDisplayName(selectedItem.toString())
+                settings.apiProvider = selectedProvider
+                // Notify user of provider change
+                addMessage("System", "Switched to ${selectedProvider.displayName} provider")
+            }
+        }
+        
+        // Add provider label and selector to provider panel
+        providerPanel.add(JLabel("Provider:"))
+        providerPanel.add(providerSelector)
+        
+        // Add provider panel to the top
+        add(providerPanel, BorderLayout.NORTH)
         
         // Input panel
         val inputPanel = JPanel(BorderLayout()).apply {
@@ -264,7 +299,7 @@ class ChatPanel : JBPanel<ChatPanel>(BorderLayout()) {
             addMessage("User", message)
             inputField.text = ""
             
-            // Use the OpenAI service to get a response
+            // Use the LLM provider service to get a response
             getAiResponse(message)
         }
     }
@@ -278,11 +313,11 @@ class ChatPanel : JBPanel<ChatPanel>(BorderLayout()) {
         // Add a "thinking" message
         addMessage("Aladin", "Thinking...")
         
-        // Call the OpenAI service in a coroutine
+        // Call the LLM provider service in a coroutine
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val openAiService = service<OpenAiService>()
-                val response = openAiService.sendMessage(userMessage)
+                val llmProvider = service<LlmProviderFactory>().getProvider()
+                val response = llmProvider.sendMessage(userMessage)
                 
                 // Update the UI on the EDT
                 ApplicationManager.getApplication().invokeLater {
