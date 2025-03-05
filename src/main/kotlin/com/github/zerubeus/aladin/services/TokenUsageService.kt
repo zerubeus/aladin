@@ -4,7 +4,6 @@ import com.github.zerubeus.aladin.settings.ApiSettingsState
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
-import com.intellij.openapi.util.Disposer
 import com.intellij.util.concurrency.AppExecutorUtil
 import java.time.LocalDate
 import java.time.ZoneId

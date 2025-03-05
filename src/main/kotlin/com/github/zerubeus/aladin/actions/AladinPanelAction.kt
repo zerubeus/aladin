@@ -4,7 +4,6 @@ import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.project.DumbAware
 import com.github.zerubeus.aladin.ui.AladinPanelWindow
-import javax.swing.Icon
 
 class AladinPanelAction : AnAction(), DumbAware {
     private var aladinPanel: AladinPanelWindow? = null

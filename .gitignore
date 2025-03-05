@@ -4,4 +4,6 @@
 .qodana
 .cursor
 .kotlin
+.env
 build
+progress.md

@@ -1,5 +1,8 @@
 package com.github.zerubeus.aladin.ui
 
+import com.github.zerubeus.aladin.services.OpenAiService
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.components.service
 import com.intellij.ui.components.JBPanel
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.components.JBTextArea
@@ -25,6 +28,10 @@ import com.intellij.openapi.util.IconLoader
 import com.intellij.ui.JBColor
 import java.awt.FlowLayout
 import javax.swing.border.CompoundBorder
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * A panel that displays a chat interface for the Aladin AI assistant.
@@ -257,18 +264,67 @@ class ChatPanel : JBPanel<ChatPanel>(BorderLayout()) {
             addMessage("User", message)
             inputField.text = ""
             
-            // TODO: Process the message and generate a response
-            // This is where you would integrate with your AI backend
-            simulateResponse(message)
+            // Use the OpenAI service to get a response
+            getAiResponse(message)
+        }
+    }
+    
+    /**
+     * Gets a response from the AI service.
+     * 
+     * @param userMessage The message from the user
+     */
+    private fun getAiResponse(userMessage: String) {
+        // Add a "thinking" message
+        addMessage("Aladin", "Thinking...")
+        
+        // Call the OpenAI service in a coroutine
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val openAiService = service<OpenAiService>()
+                val response = openAiService.sendMessage(userMessage)
+                
+                // Update the UI on the EDT
+                ApplicationManager.getApplication().invokeLater {
+                    // Remove the "thinking" message
+                    removeLastMessage()
+                    // Add the actual response
+                    addMessage("Aladin", response)
+                }
+            } catch (e: Exception) {
+                // Handle any errors
+                ApplicationManager.getApplication().invokeLater {
+                    // Remove the "thinking" message
+                    removeLastMessage()
+                    // Add an error message
+                    addMessage("Aladin", "Sorry, I encountered an error: ${e.message}")
+                }
+            }
+        }
+    }
+    
+    /**
+     * Removes the last message from the chat.
+     * Used to remove the "thinking" message before adding the actual response.
+     */
+    private fun removeLastMessage() {
+        if (messagesPanel.componentCount >= 2) {
+            // Remove the last message (component) and its spacing (vertical strut)
+            messagesPanel.remove(messagesPanel.componentCount - 1) // Remove vertical strut
+            messagesPanel.remove(messagesPanel.componentCount - 1) // Remove message panel
+            
+            // Revalidate and repaint
+            messagesPanel.revalidate()
+            messagesPanel.repaint()
         }
     }
     
     /**
      * Simulates a response from the AI assistant.
-     * This is a placeholder until the actual AI integration is implemented.
+     * This is used for testing purposes only.
      */
-    private fun simulateResponse(userMessage: String) {
-        // Simple echo response for now
+    fun simulateResponse(userMessage: String) {
+        // Simple echo response for testing
         val response = "I received your message: \"$userMessage\". This is a placeholder response until the AI integration is implemented."
         
         // Add a slight delay to simulate processing time
