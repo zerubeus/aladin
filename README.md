@@ -1,8 +1,8 @@
 # Aladin - AI Assistant for IntelliJ
 
-<div style="text-align: center;">
+<p align="center">
   <img src="src/main/resources/icons/aladin.svg" alt="Aladin Logo" width="150">
-</div>
+</p>
 
 
 ![Build](https://github.com/zerubeus/aladin/workflows/Build/badge.svg)
