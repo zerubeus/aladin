@@ -3,7 +3,6 @@ package com.github.zerubeus.aladin.ui
 import com.github.zerubeus.aladin.services.LlmProviderFactory
 import com.github.zerubeus.aladin.settings.ApiProvider
 import com.github.zerubeus.aladin.settings.ApiSettingsState
-import com.github.zerubeus.aladin.services.OpenAiService
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.service
 import com.intellij.ui.components.JBPanel
@@ -34,7 +33,6 @@ import javax.swing.border.CompoundBorder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.swing.JComboBox
 
 /**
@@ -353,21 +351,4 @@ class ChatPanel : JBPanel<ChatPanel>(BorderLayout()) {
             messagesPanel.repaint()
         }
     }
-    
-    /**
-     * Simulates a response from the AI assistant.
-     * This is used for testing purposes only.
-     */
-    fun simulateResponse(userMessage: String) {
-        // Simple echo response for testing
-        val response = "I received your message: \"$userMessage\". This is a placeholder response until the AI integration is implemented."
-        
-        // Add a slight delay to simulate processing time
-        Thread {
-            Thread.sleep(500)
-            SwingUtilities.invokeLater {
-                addMessage("Aladin", response)
-            }
-        }.start()
-    }
-} 
+}
