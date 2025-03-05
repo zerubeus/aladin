@@ -308,12 +308,21 @@ class ChatPanelTest : LightPlatformTestCase() {
     }
     
     /**
-     * Helper method to load the API key from the .env file or environment variables
+     * Helper method to load the API key from system properties, environment variables, or .env file
      */
     private fun loadApiKeyFromEnv(): String {
-        // First try to get from environment variables (for CI)
+        // First check system property (set by Gradle)
+        System.getProperty("OPEN_AI_API_KEY")?.let { key ->
+            if (key.isNotBlank()) {
+                println("API key found in system properties")
+                return key
+            }
+        }
+        
+        // Then try to get from environment variables (for CI)
         System.getenv("OPEN_AI_API_KEY")?.let { key ->
             if (key.isNotBlank()) {
+                println("API key found in environment variables")
                 return key
             }
         }
@@ -324,11 +333,17 @@ class ChatPanelTest : LightPlatformTestCase() {
             if (envFile.exists()) {
                 val envContents = envFile.readText()
                 val openAiKeyMatch = Regex("OPEN_AI_API_KEY=(.+)").find(envContents)
-                return openAiKeyMatch?.groupValues?.getOrNull(1)?.trim() ?: ""
+                val key = openAiKeyMatch?.groupValues?.getOrNull(1)?.trim() ?: ""
+                if (key.isNotBlank()) {
+                    println("API key found in .env file")
+                    return key
+                }
             }
         } catch (e: Exception) {
-            System.err.println("Error loading API key: ${e.message}")
+            System.err.println("Error loading API key from .env file: ${e.message}")
         }
+        
+        println("No API key found in any location")
         return ""
     }
 } 

@@ -112,12 +112,6 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      # Create .env file for tests
-      - name: Create .env file
-        run: |
-          echo "OPEN_AI_API_KEY=${{ secrets.OPEN_AI_API_KEY }}" > .env
-        shell: bash
-
       # Run tests
       - name: Run Tests
         run: ./gradlew check

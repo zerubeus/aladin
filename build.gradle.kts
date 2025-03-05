@@ -133,6 +133,11 @@ tasks {
         gradleVersion = providers.gradleProperty("gradleVersion").get()
     }
 
+    // Configure tests to pass environment variables as system properties
+    withType<Test> {
+        systemProperty("OPEN_AI_API_KEY", System.getenv("OPEN_AI_API_KEY") ?: "")
+    }
+
     publishPlugin {
         dependsOn(patchChangelog)
     }
