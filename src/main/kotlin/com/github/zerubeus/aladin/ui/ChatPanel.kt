@@ -30,7 +30,6 @@ import javax.swing.SwingUtilities
 import com.intellij.openapi.util.IconLoader
 import com.intellij.ui.JBColor
 import java.awt.FlowLayout
-import javax.swing.border.CompoundBorder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -53,7 +52,7 @@ class ChatPanel : JBPanel<ChatPanel>(BorderLayout()) {
 
     // Message styling
     private val userBgColor = JBColor(Color(240, 240, 240), Color(60, 63, 65))
-    private val aiBgColor = JBColor(Color(230, 242, 255), Color(45, 48, 50))
+    private val aiBgColor = JBColor.background()
     private val userTextColor = JBColor.foreground()
     private val aiTextColor = JBColor.foreground()
     
@@ -183,6 +182,22 @@ class ChatPanel : JBPanel<ChatPanel>(BorderLayout()) {
         // Set preferred size
         preferredSize = Dimension(400, 600)
     }
+
+    /**
+     * Creates a styled text area for messages.
+     */
+    private fun createMessageTextArea(message: String, bgColor: Color, textColor: Color): JBTextArea {
+        return JBTextArea().apply {
+            text = message
+            isEditable = false
+            lineWrap = true
+            wrapStyleWord = true
+            font = JBUI.Fonts.create(Font.SANS_SERIF, 13)
+            background = bgColor
+            foreground = textColor
+            border = BorderFactory.createEmptyBorder()
+        }
+    }
     
     /**
      * Creates a message bubble panel with the given text and styling.
@@ -195,43 +210,52 @@ class ChatPanel : JBPanel<ChatPanel>(BorderLayout()) {
             border = EmptyBorder(5, 0, 5, 0)
         }
 
-        val avatarPanel = JPanel(FlowLayout(FlowLayout.LEFT)).apply {
-            background = JBColor.background()
+        // For user messages, create a full-width bubble with avatar inside
+        if (isUser) {
+            val bubblePanel = JPanel(BorderLayout()).apply {
+                background = userBgColor
+                border = BorderFactory.createEmptyBorder(8, 12, 8, 12)
+            }
+
+            val contentPanel = JPanel(BorderLayout()).apply {
+                background = userBgColor
+                border = null
+            }
+
+            val avatarPanel = JPanel(FlowLayout(FlowLayout.LEFT)).apply {
+                background = userBgColor
+                add(JLabel("👤 You"))
+            }
+
+            contentPanel.add(createMessageTextArea(message, userBgColor, userTextColor), BorderLayout.CENTER)
+            contentPanel.add(avatarPanel, BorderLayout.WEST)
+            bubblePanel.add(contentPanel, BorderLayout.CENTER)
+            messagePanel.add(bubblePanel, BorderLayout.CENTER)
+        } else {
+            // Keep Aladin messages as they are
+            val avatarPanel = JPanel(FlowLayout(FlowLayout.LEFT)).apply {
+                background = JBColor.background()
+            }
+
+            val avatarIcon = JLabel("🧞")
+            val nameLabel = JLabel("Aladin").apply {
+                font = JBUI.Fonts.create(Font.SANS_SERIF, 12)
+                foreground = JBColor.foreground()
+            }
+
+            avatarPanel.add(avatarIcon)
+            avatarPanel.add(nameLabel)
+
+            val bubblePanel = JPanel(BorderLayout()).apply {
+                background = aiBgColor
+                border = BorderFactory.createEmptyBorder(8, 12, 8, 12)
+            }
+
+            bubblePanel.add(createMessageTextArea(message, aiBgColor, aiTextColor), BorderLayout.CENTER)
+
+            messagePanel.add(avatarPanel, BorderLayout.NORTH)
+            messagePanel.add(bubblePanel, BorderLayout.CENTER)
         }
-
-        val avatarIcon = if (isUser) JLabel("👤") else JLabel("🧞")
-
-        val nameLabel = JLabel(if (isUser) "You" else "Aladin").apply {
-            font = JBUI.Fonts.create(Font.SANS_SERIF, 12)
-            foreground = JBColor.foreground()
-        }
-
-        avatarPanel.add(avatarIcon)
-        avatarPanel.add(nameLabel)
-
-        val bubblePanel = JPanel(BorderLayout()).apply {
-            background = if (isUser) userBgColor else aiBgColor
-            border = CompoundBorder(
-                BorderFactory.createLineBorder(if (isUser) userBgColor.darker() else aiBgColor.darker(), 1, true),
-                BorderFactory.createEmptyBorder(8, 12, 8, 12)
-            )
-        }
-
-        val textArea = JBTextArea().apply {
-            text = message
-            isEditable = false
-            lineWrap = true
-            wrapStyleWord = true
-            font = JBUI.Fonts.create(Font.SANS_SERIF, 13)
-            background = if (isUser) userBgColor else aiBgColor
-            foreground = if (isUser) userTextColor else aiTextColor
-            border = BorderFactory.createEmptyBorder()
-        }
-
-        bubblePanel.add(textArea, BorderLayout.CENTER)
-
-        messagePanel.add(avatarPanel, BorderLayout.NORTH)
-        messagePanel.add(bubblePanel, BorderLayout.CENTER)
 
         return messagePanel
     }
