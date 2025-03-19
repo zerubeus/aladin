@@ -26,10 +26,13 @@ import javax.swing.border.EmptyBorder
  * A panel that displays a chat interface for the Aladin AI assistant.
  */
 class ChatPanel : JBPanel<ChatPanel>(BorderLayout()) {
+    private val introductoryMessage = "Ask Aladin anything..."
+
     private val chatHistoryPane: JTextPane
     private val inputField: JBTextField
     private val sendButton: JButton
     private val aiProviderSelector: ComboBox<String>
+
 
     // Messages panel with BoxLayout for vertical stacking
     private val messagesPanel: JPanel = JPanel().apply {
@@ -49,10 +52,7 @@ class ChatPanel : JBPanel<ChatPanel>(BorderLayout()) {
 
     // Message styling
     private val userBgColor: Color
-        get() {
-            val themeBgColor = UIManager.getColor("Panel.background")
-            return getContrastingColor(themeBgColor)
-        }
+        get() = getContrastingColor(UIManager.getColor("Panel.background"))
 
     private val aiBgColor = JBColor.background()
     private val userTextColor = JBColor.foreground()
@@ -119,7 +119,7 @@ class ChatPanel : JBPanel<ChatPanel>(BorderLayout()) {
         }
 
         // Input field
-        inputField = JBTextField("Ask Aladin anything...").apply {
+        inputField = JBTextField(introductoryMessage).apply {
             font = JBUI.Fonts.create(Font.SANS_SERIF, 13)
             border = BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(JBColor.border(), 1, true),
@@ -127,13 +127,12 @@ class ChatPanel : JBPanel<ChatPanel>(BorderLayout()) {
             )
 
             // Add placeholder text behavior
-            val placeholderText = "Ask Aladin anything..."
-            text = placeholderText
+            text = introductoryMessage
             foreground = JBColor.GRAY
 
             addFocusListener(object : java.awt.event.FocusListener {
                 override fun focusGained(e: java.awt.event.FocusEvent) {
-                    if (text == placeholderText) {
+                    if (text == introductoryMessage) {
                         text = ""
                         foreground = JBColor.foreground()
                     }
@@ -141,7 +140,7 @@ class ChatPanel : JBPanel<ChatPanel>(BorderLayout()) {
 
                 override fun focusLost(e: java.awt.event.FocusEvent) {
                     if (text.isEmpty()) {
-                        text = placeholderText
+                        text = introductoryMessage
                         foreground = JBColor.GRAY
                     }
                 }
@@ -304,9 +303,8 @@ class ChatPanel : JBPanel<ChatPanel>(BorderLayout()) {
      */
     private fun sendMessage() {
         val message = inputField.text.trim()
-        val placeholderText = "Ask Aladin anything..."
 
-        if (message.isNotEmpty() && message != placeholderText) {
+        if (message.isNotEmpty() && message != introductoryMessage) {
             addMessage("User", message)
             inputField.text = ""
 
