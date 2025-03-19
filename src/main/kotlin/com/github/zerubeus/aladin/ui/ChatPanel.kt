@@ -189,37 +189,26 @@ class ChatPanel : JBPanel<ChatPanel>(BorderLayout()) {
      */
     private fun createMessagePanel(sender: String, message: String): JPanel {
         val isUser = sender != "Aladin"
-        
-        // Main panel for the message
+
         val messagePanel = JPanel(BorderLayout()).apply {
             background = JBColor.background()
             border = EmptyBorder(5, 0, 5, 0)
         }
-        
-        // Avatar and name panel
-        val avatarPanel = JPanel(FlowLayout(if (isUser) FlowLayout.RIGHT else FlowLayout.LEFT)).apply {
+
+        val avatarPanel = JPanel(FlowLayout(FlowLayout.LEFT)).apply {
             background = JBColor.background()
         }
-        
-        // Avatar icon (placeholder - you can replace with actual icons)
-        val avatarIcon = if (isUser) {
-            // User icon
-            JLabel("👤")
-        } else {
-            // Aladin icon
-            JLabel("🧞")
-        }
-        
-        // Name label
+
+        val avatarIcon = if (isUser) JLabel("👤") else JLabel("🧞")
+
         val nameLabel = JLabel(if (isUser) "You" else "Aladin").apply {
             font = JBUI.Fonts.create(Font.SANS_SERIF, 12)
             foreground = JBColor.foreground()
         }
-        
+
         avatarPanel.add(avatarIcon)
         avatarPanel.add(nameLabel)
-        
-        // Message bubble
+
         val bubblePanel = JPanel(BorderLayout()).apply {
             background = if (isUser) userBgColor else aiBgColor
             border = CompoundBorder(
@@ -227,8 +216,7 @@ class ChatPanel : JBPanel<ChatPanel>(BorderLayout()) {
                 BorderFactory.createEmptyBorder(8, 12, 8, 12)
             )
         }
-        
-        // Message text
+
         val textArea = JBTextArea().apply {
             text = message
             isEditable = false
@@ -238,28 +226,13 @@ class ChatPanel : JBPanel<ChatPanel>(BorderLayout()) {
             background = if (isUser) userBgColor else aiBgColor
             foreground = if (isUser) userTextColor else aiTextColor
             border = BorderFactory.createEmptyBorder()
-            
-            // Calculate preferred size based on text content
-            val fontMetrics = getFontMetrics(font)
-            val width = 300 // Maximum width
-            val lines = text.split("\n")
-            var height = 0
-            
-            for (line in lines) {
-                val lineWidth = fontMetrics.stringWidth(line)
-                val lineCount = (lineWidth / width) + 1
-                height += fontMetrics.height * lineCount
-            }
-            
-            preferredSize = Dimension(width, height)
         }
-        
+
         bubblePanel.add(textArea, BorderLayout.CENTER)
-        
-        // Add components to message panel
+
         messagePanel.add(avatarPanel, BorderLayout.NORTH)
-        messagePanel.add(bubblePanel, if (isUser) BorderLayout.EAST else BorderLayout.WEST)
-        
+        messagePanel.add(bubblePanel, BorderLayout.CENTER)
+
         return messagePanel
     }
     
