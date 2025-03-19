@@ -38,11 +38,22 @@ class ChatPanel : JBPanel<ChatPanel>(BorderLayout()) {
         border = EmptyBorder(10, 10, 10, 10)
     }
 
+    private fun getContrastingColor(baseColor: Color): Color {
+        val brightness = (0.299 * baseColor.red + 0.587 * baseColor.green + 0.114 * baseColor.blue) / 255
+        return if (brightness > 0.5) {
+            baseColor.darker()
+        } else {
+            baseColor.brighter()
+        }
+    }
+
     // Message styling
-    private val userBgColor = JBColor(
-        Color(220, 230, 245),
-        JBColor.background().brighter()
-    )
+    private val userBgColor: Color
+        get() {
+            val themeBgColor = UIManager.getColor("Panel.background")
+            return getContrastingColor(themeBgColor)
+        }
+
     private val aiBgColor = JBColor.background()
     private val userTextColor = JBColor.foreground()
     private val aiTextColor = JBColor.foreground()
