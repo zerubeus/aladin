@@ -6,29 +6,21 @@ import com.github.zerubeus.aladin.settings.ApiSettingsState
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.service
 import com.intellij.openapi.ui.ComboBox
+import com.intellij.openapi.util.IconLoader
+import com.intellij.ui.JBColor
 import com.intellij.ui.components.JBPanel
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.components.JBTextArea
 import com.intellij.ui.components.JBTextField
 import com.intellij.util.ui.JBUI
-import java.awt.event.KeyAdapter
-import java.awt.event.KeyEvent
-import javax.swing.BorderFactory
-import javax.swing.Box
-import javax.swing.BoxLayout
-import javax.swing.JButton
-import javax.swing.JPanel
-import javax.swing.JTextPane
-import javax.swing.ScrollPaneConstants
-import javax.swing.border.EmptyBorder
-import javax.swing.JLabel
-import javax.swing.SwingUtilities
-import com.intellij.openapi.util.IconLoader
-import com.intellij.ui.JBColor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.awt.*
+import java.awt.event.KeyAdapter
+import java.awt.event.KeyEvent
+import javax.swing.*
+import javax.swing.border.EmptyBorder
 
 /**
  * A panel that displays a chat interface for the Aladin AI assistant.
@@ -47,14 +39,18 @@ class ChatPanel : JBPanel<ChatPanel>(BorderLayout()) {
     }
 
     // Message styling
-    private val userBgColor = JBColor(Color(240, 240, 240), Color(60, 63, 65))
+    private val userBgColor = JBColor(
+        Color(220, 230, 245),
+        JBColor.background().brighter()
+    )
     private val aiBgColor = JBColor.background()
     private val userTextColor = JBColor.foreground()
     private val aiTextColor = JBColor.foreground()
-    
+
+
     // Icons
     private val sendIcon = IconLoader.getIcon("/icons/send.svg", ChatPanel::class.java)
-    
+
     init {
         // Scroll pane for messages
         val scrollPane = JBScrollPane(messagesPanel).apply {
@@ -63,7 +59,7 @@ class ChatPanel : JBPanel<ChatPanel>(BorderLayout()) {
             border = BorderFactory.createEmptyBorder()
             viewport.background = JBColor.background()
         }
-        
+
         // Chat history area (not used directly, but kept for future reference)
         chatHistoryPane = JTextPane().apply {
             isEditable = false
@@ -74,7 +70,7 @@ class ChatPanel : JBPanel<ChatPanel>(BorderLayout()) {
         val aiProviderPanel = JPanel(FlowLayout(FlowLayout.LEFT)).apply {
             background = JBColor.background()
         }
-        
+
         // AI Provider selector
         aiProviderSelector = ComboBox<String>().apply {
             // Add available providers
@@ -94,14 +90,14 @@ class ChatPanel : JBPanel<ChatPanel>(BorderLayout()) {
                 addMessage("System", "Switched to ${selectedProvider.displayName} provider")
             }
         }
-        
+
         // Add provider label and selector to provider panel
         aiProviderPanel.add(JLabel("Provider:"))
         aiProviderPanel.add(aiProviderSelector)
-        
+
         // Add provider panel to the top
         add(aiProviderPanel, BorderLayout.NORTH)
-        
+
         // Input panel
         val inputPanel = JPanel(BorderLayout()).apply {
             border = BorderFactory.createCompoundBorder(
@@ -110,7 +106,7 @@ class ChatPanel : JBPanel<ChatPanel>(BorderLayout()) {
             )
             background = JBColor.background()
         }
-        
+
         // Input field
         inputField = JBTextField("Ask Aladin anything...").apply {
             font = JBUI.Fonts.create(Font.SANS_SERIF, 13)
@@ -118,12 +114,12 @@ class ChatPanel : JBPanel<ChatPanel>(BorderLayout()) {
                 BorderFactory.createLineBorder(JBColor.border(), 1, true),
                 BorderFactory.createEmptyBorder(8, 10, 8, 10)
             )
-            
+
             // Add placeholder text behavior
             val placeholderText = "Ask Aladin anything..."
             text = placeholderText
             foreground = JBColor.GRAY
-            
+
             addFocusListener(object : java.awt.event.FocusListener {
                 override fun focusGained(e: java.awt.event.FocusEvent) {
                     if (text == placeholderText) {
@@ -131,7 +127,7 @@ class ChatPanel : JBPanel<ChatPanel>(BorderLayout()) {
                         foreground = JBColor.foreground()
                     }
                 }
-                
+
                 override fun focusLost(e: java.awt.event.FocusEvent) {
                     if (text.isEmpty()) {
                         text = placeholderText
@@ -139,7 +135,7 @@ class ChatPanel : JBPanel<ChatPanel>(BorderLayout()) {
                     }
                 }
             })
-            
+
             addKeyListener(object : KeyAdapter() {
                 override fun keyPressed(e: KeyEvent) {
                     if (e.keyCode == KeyEvent.VK_ENTER && !e.isShiftDown) {
@@ -152,7 +148,7 @@ class ChatPanel : JBPanel<ChatPanel>(BorderLayout()) {
                 }
             })
         }
-        
+
         // Send button with icon
         sendButton = JButton().apply {
             icon = sendIcon
@@ -163,18 +159,18 @@ class ChatPanel : JBPanel<ChatPanel>(BorderLayout()) {
             isContentAreaFilled = false
             addActionListener { sendMessage() }
         }
-        
+
         // Add components to input panel
         inputPanel.add(inputField, BorderLayout.CENTER)
         inputPanel.add(sendButton, BorderLayout.EAST)
-        
+
         // Add components to main panel
         add(scrollPane, BorderLayout.CENTER)
         add(inputPanel, BorderLayout.SOUTH)
-        
+
         // Add welcome message
         addMessage("Aladin", "Hello! I'm Aladin, your AI coding assistant. How can I help you today?")
-        
+
         // Set preferred size
         preferredSize = Dimension(400, 600)
     }
@@ -194,7 +190,7 @@ class ChatPanel : JBPanel<ChatPanel>(BorderLayout()) {
             border = BorderFactory.createEmptyBorder()
         }
     }
-    
+
     /**
      * Creates a message bubble panel with the given text and styling.
      */
@@ -207,7 +203,7 @@ class ChatPanel : JBPanel<ChatPanel>(BorderLayout()) {
         }
 
         if (isUser) {
-            val bubblePanel = JPanel(BorderLayout()).apply {
+            val userBubblePanel = JPanel(BorderLayout()).apply {
                 background = userBgColor
                 border = BorderFactory.createEmptyBorder(8, 12, 8, 12)
             }
@@ -217,17 +213,14 @@ class ChatPanel : JBPanel<ChatPanel>(BorderLayout()) {
                 border = null
             }
 
-            val avatarPanel = JPanel().apply {
-                layout = BoxLayout(this, BoxLayout.Y_AXIS)
+            // Changed layout to FlowLayout(FlowLayout.LEFT)
+            val avatarPanel = JPanel(FlowLayout(FlowLayout.LEFT)).apply {
                 background = userBgColor
             }
 
-            val iconLabel = JLabel("👤 You").apply {
-                alignmentX = Component.CENTER_ALIGNMENT
-            }
+            val iconLabel = JLabel("👤 You")
 
             avatarPanel.add(iconLabel)
-            avatarPanel.add(Box.createVerticalStrut(5))
 
             val constraints = GridBagConstraints().apply {
                 gridx = 0
@@ -240,32 +233,32 @@ class ChatPanel : JBPanel<ChatPanel>(BorderLayout()) {
 
             contentPanel.add(createMessageTextArea(message, userBgColor, userTextColor), constraints)
 
-            bubblePanel.add(avatarPanel, BorderLayout.NORTH)
-            bubblePanel.add(contentPanel, BorderLayout.CENTER)
-            messagePanel.add(bubblePanel, BorderLayout.CENTER)
+            userBubblePanel.add(avatarPanel, BorderLayout.NORTH)
+            userBubblePanel.add(contentPanel, BorderLayout.CENTER)
+            messagePanel.add(userBubblePanel, BorderLayout.CENTER)
         } else {
-            val avatarPanel = JPanel(FlowLayout(FlowLayout.LEFT)).apply {
+            val aiPanel = JPanel(FlowLayout(FlowLayout.LEFT)).apply {
                 background = JBColor.background()
             }
 
-            val avatarIcon = JLabel("🧞")
+            val aiAvatarIcon = JLabel("🧞")
             val nameLabel = JLabel("Aladin").apply {
                 font = JBUI.Fonts.create(Font.SANS_SERIF, 12)
                 foreground = JBColor.foreground()
             }
 
-            avatarPanel.add(avatarIcon)
-            avatarPanel.add(nameLabel)
+            aiPanel.add(aiAvatarIcon)
+            aiPanel.add(nameLabel)
 
-            val bubblePanel = JPanel(BorderLayout()).apply {
+            val aiBubblePanel = JPanel(BorderLayout()).apply {
                 background = aiBgColor
                 border = BorderFactory.createEmptyBorder(8, 12, 8, 12)
             }
 
-            bubblePanel.add(createMessageTextArea(message, aiBgColor, aiTextColor), BorderLayout.CENTER)
+            aiBubblePanel.add(createMessageTextArea(message, aiBgColor, aiTextColor), BorderLayout.CENTER)
 
-            messagePanel.add(avatarPanel, BorderLayout.NORTH)
-            messagePanel.add(bubblePanel, BorderLayout.CENTER)
+            messagePanel.add(aiPanel, BorderLayout.NORTH)
+            messagePanel.add(aiBubblePanel, BorderLayout.CENTER)
         }
 
         return messagePanel
@@ -274,17 +267,17 @@ class ChatPanel : JBPanel<ChatPanel>(BorderLayout()) {
     /**
      * Adds a message to the chat history.
      */
-    fun addMessage(sender: String, message: String) {
+    private fun addMessage(sender: String, message: String) {
         val messagePanel = createMessagePanel(sender, message)
-        
+
         // Add message panel to messages panel
         messagesPanel.add(messagePanel)
         messagesPanel.add(Box.createVerticalStrut(10))
-        
+
         // Revalidate and repaint
         messagesPanel.revalidate()
         messagesPanel.repaint()
-        
+
         // Scroll to bottom
         SwingUtilities.invokeLater {
             val scrollPane = SwingUtilities.getAncestorOfClass(JBScrollPane::class.java, messagesPanel) as? JBScrollPane
@@ -294,38 +287,38 @@ class ChatPanel : JBPanel<ChatPanel>(BorderLayout()) {
             }
         }
     }
-    
+
     /**
      * Sends the message from the input field.
      */
     private fun sendMessage() {
         val message = inputField.text.trim()
         val placeholderText = "Ask Aladin anything..."
-        
+
         if (message.isNotEmpty() && message != placeholderText) {
             addMessage("User", message)
             inputField.text = ""
-            
+
             // Use the LLM provider service to get a response
             getAiResponse(message)
         }
     }
-    
+
     /**
      * Gets a response from the AI service.
-     * 
+     *
      * @param userMessage The message from the user
      */
     private fun getAiResponse(userMessage: String) {
         // Add a "thinking" message
         addMessage("Aladin", "Thinking...")
-        
+
         // Call the LLM provider service in a coroutine
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val llmProvider = service<LlmProviderFactory>().getProvider()
                 val response = llmProvider.sendMessage(userMessage)
-                
+
                 // Update the UI on the EDT
                 ApplicationManager.getApplication().invokeLater {
                     // Remove the "thinking" message
@@ -344,7 +337,7 @@ class ChatPanel : JBPanel<ChatPanel>(BorderLayout()) {
             }
         }
     }
-    
+
     /**
      * Removes the last message from the chat.
      * Used to remove the "thinking" message before adding the actual response.
@@ -354,7 +347,7 @@ class ChatPanel : JBPanel<ChatPanel>(BorderLayout()) {
             // Remove the last message (component) and its spacing (vertical strut)
             messagesPanel.remove(messagesPanel.componentCount - 1) // Remove vertical strut
             messagesPanel.remove(messagesPanel.componentCount - 1) // Remove message panel
-            
+
             // Revalidate and repaint
             messagesPanel.revalidate()
             messagesPanel.repaint()
