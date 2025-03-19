@@ -11,8 +11,6 @@ import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.components.JBTextArea
 import com.intellij.ui.components.JBTextField
 import com.intellij.util.ui.JBUI
-import java.awt.BorderLayout
-import java.awt.Dimension
 import java.awt.event.KeyAdapter
 import java.awt.event.KeyEvent
 import javax.swing.BorderFactory
@@ -23,16 +21,14 @@ import javax.swing.JPanel
 import javax.swing.JTextPane
 import javax.swing.ScrollPaneConstants
 import javax.swing.border.EmptyBorder
-import java.awt.Font
-import java.awt.Color
 import javax.swing.JLabel
 import javax.swing.SwingUtilities
 import com.intellij.openapi.util.IconLoader
 import com.intellij.ui.JBColor
-import java.awt.FlowLayout
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.awt.*
 
 /**
  * A panel that displays a chat interface for the Aladin AI assistant.
@@ -210,29 +206,44 @@ class ChatPanel : JBPanel<ChatPanel>(BorderLayout()) {
             border = EmptyBorder(5, 0, 5, 0)
         }
 
-        // For user messages, create a full-width bubble with avatar inside
         if (isUser) {
             val bubblePanel = JPanel(BorderLayout()).apply {
                 background = userBgColor
                 border = BorderFactory.createEmptyBorder(8, 12, 8, 12)
             }
 
-            val contentPanel = JPanel(BorderLayout()).apply {
+            val contentPanel = JPanel(GridBagLayout()).apply {
                 background = userBgColor
                 border = null
             }
 
-            val avatarPanel = JPanel(FlowLayout(FlowLayout.LEFT)).apply {
+            val avatarPanel = JPanel().apply {
+                layout = BoxLayout(this, BoxLayout.Y_AXIS)
                 background = userBgColor
-                add(JLabel("👤 You"))
             }
 
-            contentPanel.add(createMessageTextArea(message, userBgColor, userTextColor), BorderLayout.CENTER)
-            contentPanel.add(avatarPanel, BorderLayout.WEST)
+            val iconLabel = JLabel("👤 You").apply {
+                alignmentX = Component.CENTER_ALIGNMENT
+            }
+
+            avatarPanel.add(iconLabel)
+            avatarPanel.add(Box.createVerticalStrut(5))
+
+            val constraints = GridBagConstraints().apply {
+                gridx = 0
+                gridy = 0
+                anchor = GridBagConstraints.NORTHWEST
+                fill = GridBagConstraints.HORIZONTAL
+                weightx = 1.0
+                insets = JBUI.insets(0, 0, 0, 0)
+            }
+
+            contentPanel.add(createMessageTextArea(message, userBgColor, userTextColor), constraints)
+
+            bubblePanel.add(avatarPanel, BorderLayout.NORTH)
             bubblePanel.add(contentPanel, BorderLayout.CENTER)
             messagePanel.add(bubblePanel, BorderLayout.CENTER)
         } else {
-            // Keep Aladin messages as they are
             val avatarPanel = JPanel(FlowLayout(FlowLayout.LEFT)).apply {
                 background = JBColor.background()
             }
@@ -259,7 +270,7 @@ class ChatPanel : JBPanel<ChatPanel>(BorderLayout()) {
 
         return messagePanel
     }
-    
+
     /**
      * Adds a message to the chat history.
      */
