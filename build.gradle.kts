@@ -16,7 +16,7 @@ version = providers.gradleProperty("pluginVersion").get()
 
 // Set the JVM language level used to build the project.
 kotlin {
-    jvmToolchain(17)
+    jvmToolchain(21)
 }
 
 // Configure project's dependencies
@@ -51,6 +51,26 @@ dependencies {
         zipSigner()
         testFramework(TestFrameworkType.Platform)
     }
+
+    // Arc
+    val arcVersion = "0.121.0"
+    implementation("org.eclipse.lmos:arc-reader-pdf:$arcVersion")
+    implementation("org.eclipse.lmos:arc-reader-html:$arcVersion")
+    implementation("org.eclipse.lmos:arc-assistants:$arcVersion")
+    implementation("org.eclipse.lmos:arc-agents:$arcVersion")
+    implementation("org.eclipse.lmos:arc-result:$arcVersion")
+    implementation("org.eclipse.lmos:arc-langchain4j-client:$arcVersion")
+    implementation("org.eclipse.lmos:arc-azure-client:$arcVersion")
+
+    // Azure
+    implementation("com.azure:azure-ai-openai:1.0.0-beta.13")
+
+    // Langchain4j
+    val langchain4jVersion = "0.36.2"
+    implementation("dev.langchain4j:langchain4j-bedrock:$langchain4jVersion")
+    implementation("dev.langchain4j:langchain4j-google-ai-gemini:$langchain4jVersion")
+    implementation("dev.langchain4j:langchain4j-ollama:$langchain4jVersion")
+    implementation("dev.langchain4j:langchain4j-open-ai:$langchain4jVersion")
 }
 
 // Configure IntelliJ Platform Gradle Plugin - read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-extension.html
