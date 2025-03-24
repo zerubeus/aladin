@@ -16,12 +16,13 @@ version = providers.gradleProperty("pluginVersion").get()
 
 // Set the JVM language level used to build the project.
 kotlin {
-    jvmToolchain(21)
+    jvmToolchain(17)
 }
 
 // Configure project's dependencies
 repositories {
     mavenCentral()
+    maven(url = "https://oss.sonatype.org/content/repositories/snapshots/")
 
     // IntelliJ Platform Gradle Plugin Repositories Extension - read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-repositories-extension.html
     intellijPlatform {
@@ -53,7 +54,7 @@ dependencies {
     }
 
     // Arc
-    val arcVersion = "0.121.0"
+    val arcVersion = "0.122.0-j17-SNAPSHOT"
     implementation("org.eclipse.lmos:arc-reader-pdf:$arcVersion")
     implementation("org.eclipse.lmos:arc-reader-html:$arcVersion")
     implementation("org.eclipse.lmos:arc-assistants:$arcVersion")
