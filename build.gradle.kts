@@ -22,6 +22,7 @@ kotlin {
 // Configure project's dependencies
 repositories {
     mavenCentral()
+    maven(url = "https://oss.sonatype.org/content/repositories/snapshots/")
 
     // IntelliJ Platform Gradle Plugin Repositories Extension - read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-repositories-extension.html
     intellijPlatform {
@@ -51,6 +52,26 @@ dependencies {
         zipSigner()
         testFramework(TestFrameworkType.Platform)
     }
+
+    // Arc
+    val arcVersion = "0.122.0-j17-SNAPSHOT"
+    implementation("org.eclipse.lmos:arc-reader-pdf:$arcVersion")
+    implementation("org.eclipse.lmos:arc-reader-html:$arcVersion")
+    implementation("org.eclipse.lmos:arc-assistants:$arcVersion")
+    implementation("org.eclipse.lmos:arc-agents:$arcVersion")
+    implementation("org.eclipse.lmos:arc-result:$arcVersion")
+    implementation("org.eclipse.lmos:arc-langchain4j-client:$arcVersion")
+    implementation("org.eclipse.lmos:arc-azure-client:$arcVersion")
+
+    // Azure
+    implementation("com.azure:azure-ai-openai:1.0.0-beta.13")
+
+    // Langchain4j
+    val langchain4jVersion = "0.36.2"
+    implementation("dev.langchain4j:langchain4j-bedrock:$langchain4jVersion")
+    implementation("dev.langchain4j:langchain4j-google-ai-gemini:$langchain4jVersion")
+    implementation("dev.langchain4j:langchain4j-ollama:$langchain4jVersion")
+    implementation("dev.langchain4j:langchain4j-open-ai:$langchain4jVersion")
 }
 
 // Configure IntelliJ Platform Gradle Plugin - read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-extension.html
